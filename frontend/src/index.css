@@ -1,1 +1,89 @@
 @import "tailwindcss";
+
+:root {
+  color: #20221d;
+  background: #f2eee4;
+  font-family:
+    "Avenir Next", Avenir, "Segoe UI", Helvetica, Arial, sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  --cream: #f2eee4;
+  --paper: #fbf8f1;
+  --paper-deep: #e9e1d3;
+  --ink: #20221d;
+  --ink-soft: #5f6259;
+  --line: #d6ccbc;
+  --matcha: #344f38;
+  --matcha-soft: #d9dfce;
+  --wood: #805d46;
+  --wood-soft: #d8c1aa;
+  --amber: #b97539;
+  --charcoal: #34342f;
+  --serif: Georgia, "Times New Roman", serif;
+  --handwritten: "Segoe Print", "Bradley Hand", "Comic Sans MS", cursive;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--cream);
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: var(--cream);
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+::selection {
+  color: var(--paper);
+  background: var(--matcha);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
