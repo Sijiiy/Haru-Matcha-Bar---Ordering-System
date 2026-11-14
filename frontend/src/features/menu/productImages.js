@@ -56,3 +56,13 @@ export const productImages = {
     iced: honeyOatLatteIced,
   },
 }
+
+export function getProductImage(product, variantName) {
+  const images = productImages[product.slug]
+  const variantKey = variantName?.toLowerCase()
+  const variantImage = variantKey === 'hot' || variantKey === 'iced'
+    ? images?.[variantKey]
+    : null
+
+  return variantImage || product.image_path || images?.default
+}

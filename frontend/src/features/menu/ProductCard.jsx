@@ -1,41 +1,9 @@
-import { useState } from 'react'
 import { formatPeso } from '../../utils/currency.js'
-import { productImages } from './productImages.js'
+import { getProductImage } from './productImages.js'
+import ProductImage from './ProductImage.jsx'
 
-function ProductArtwork({ category, productName }) {
-  return (
-    <div className="product-art" data-category={category} aria-hidden="true">
-      <span className="product-art__wordmark">haru.</span>
-      <span className="product-art__orb product-art__orb--large" />
-      <span className="product-art__orb product-art__orb--small" />
-      <span className="product-art__line" />
-      <p>{productName}</p>
-    </div>
-  )
-}
-
-function ProductImage({ src, productName, category }) {
-  const [failed, setFailed] = useState(false)
-
-  if (!src || failed) {
-    return <ProductArtwork category={category} productName={productName} />
-  }
-
-  return (
-    <img
-      src={src}
-      // The adjacent heading already names the product. Poster text is repeated
-      // in the card, so an empty alt avoids duplicate screen-reader content.
-      alt=""
-      loading="lazy"
-      decoding="async"
-      onError={() => setFailed(true)}
-    />
-  )
-}
-
-function ProductCard({ product, category }) {
-  const imageSrc = product.image_path || productImages[product.slug]?.default
+function ProductCard({ product, category, onSelect }) {
+  const imageSrc = getProductImage(product)
   const hasSingleUnlabelledPrice =
     product.variants.length === 1 && !product.variants[0].name
 
@@ -74,6 +42,13 @@ function ProductCard({ product, category }) {
           ))}
         </ul>
       </div>
+      <button
+        className="product-card__select"
+        type="button"
+        aria-label={`View ${product.name}`}
+        aria-haspopup="dialog"
+        onClick={() => onSelect(product, category)}
+      />
     </article>
   )
 }

@@ -5,6 +5,11 @@ import LoadingState from '../../components/ui/LoadingState.jsx'
 import CategoryNavigation from './CategoryNavigation.jsx'
 import ProductGrid from './ProductGrid.jsx'
 import { useMenu } from './useMenu.js'
+import ProductDetailsModal from './ProductDetailsModal.jsx'
+import CartModal from '../cart/CartModal.jsx'
+import { useCart } from '../cart/useCart.js'
+import { cartLineKey, MAX_QUANTITY } from '../cart/cartState.js'
+import { formatPeso } from '../../utils/currency.js'
 
 const categoryOptions = [
   { slug: 'all', label: 'All' },
@@ -29,7 +34,7 @@ function groupProducts(category) {
   return Array.from(groups, ([name, products]) => ({ name, products }))
 }
 
-function MenuCategory({ category, index }) {
+function MenuCategory({ category, index, onSelect }) {
   const groups = groupProducts(category)
   const categoryHeadingId = `category-${category.slug}`
 
@@ -51,7 +56,7 @@ function MenuCategory({ category, index }) {
               <span />
             </div>
           ) : null}
-          <ProductGrid products={group.products} category={category.slug} />
+          <ProductGrid products={group.products} category={category.slug} onSelect={onSelect} />
         </div>
       ))}
     </section>
@@ -61,6 +66,23 @@ function MenuCategory({ category, index }) {
 function MenuPage() {
   const [activeCategory, setActiveCategory] = useState('all')
   const { categories, status, retry } = useMenu()
+  const cart = useCart()
+  const [modal, setModal] = useState(null)
+  const [confirmation, setConfirmation] = useState('')
+
+  const handleProductSelect = (product, category) => {
+    setConfirmation('')
+    setModal({ type: 'product', product, category })
+  }
+
+  const handleAdd = (product, variant, quantity) => {
+    const existing = cart.lines.find((line) => line.key === cartLineKey(product.slug, variant.id))
+    if ((existing?.quantity || 0) + quantity > MAX_QUANTITY) return
+
+    cart.dispatch({ type: 'add', product, variant, quantity })
+    setConfirmation(`Added ${quantity} × ${product.name}${variant.name ? ` · ${variant.name}` : ''} to your order.`)
+    setModal(null)
+  }
 
   const visibleCategories = useMemo(() => {
     if (activeCategory === 'all') {
@@ -129,7 +151,7 @@ function MenuPage() {
           {status === 'success' && categories.length > 0 ? (
             visibleCategories.length > 0 ? (
               visibleCategories.map((category, index) => (
-                <MenuCategory category={category} index={index} key={category.id} />
+                <MenuCategory category={category} index={index} onSelect={handleProductSelect} key={category.id} />
               ))
             ) : (
               <EmptyState />
@@ -142,6 +164,41 @@ function MenuPage() {
         <span className="brand-wordmark">haru.</span>
         <p>All drinks served with oat milk.</p>
       </footer>
+
+      <div className="order-entry">
+        <p className="cart-confirmation" role="status">{confirmation}</p>
+        <button
+          className="order-entry__button"
+          type="button"
+          aria-label={`Review your order, ${cart.itemCount} ${cart.itemCount === 1 ? 'item' : 'items'}`}
+          aria-haspopup="dialog"
+          onClick={() => {
+            setConfirmation('')
+            setModal({ type: 'cart' })
+          }}
+        >
+          <span className="order-entry__count">{cart.itemCount}</span>
+          <span>Your order <small>Review items</small></span>
+          <strong>{formatPeso(cart.subtotal)}</strong>
+          <span aria-hidden="true">↗</span>
+        </button>
+      </div>
+
+      {modal?.type === 'product' ? (
+        <ProductDetailsModal
+          product={modal.product}
+          category={modal.category}
+          lines={cart.lines}
+          onAdd={handleAdd}
+          onClose={() => setModal(null)}
+        />
+      ) : null}
+      {modal?.type === 'cart' ? (
+        <CartModal
+          {...cart}
+          onClose={() => setModal(null)}
+        />
+      ) : null}
     </div>
   )
 }
