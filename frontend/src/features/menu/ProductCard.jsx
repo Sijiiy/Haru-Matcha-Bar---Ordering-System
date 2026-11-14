@@ -1,4 +1,6 @@
+import { useState } from 'react'
 import { formatPeso } from '../../utils/currency.js'
+import { productImages } from './productImages.js'
 
 function ProductArtwork({ category, productName }) {
   return (
@@ -12,18 +14,40 @@ function ProductArtwork({ category, productName }) {
   )
 }
 
+function ProductImage({ src, productName, category }) {
+  const [failed, setFailed] = useState(false)
+
+  if (!src || failed) {
+    return <ProductArtwork category={category} productName={productName} />
+  }
+
+  return (
+    <img
+      src={src}
+      // The adjacent heading already names the product. Poster text is repeated
+      // in the card, so an empty alt avoids duplicate screen-reader content.
+      alt=""
+      loading="lazy"
+      decoding="async"
+      onError={() => setFailed(true)}
+    />
+  )
+}
+
 function ProductCard({ product, category }) {
+  const imageSrc = product.image_path || productImages[product.slug]?.default
   const hasSingleUnlabelledPrice =
     product.variants.length === 1 && !product.variants[0].name
 
   return (
     <article className="product-card">
       <div className="product-card__media">
-        {product.image_path ? (
-          <img src={product.image_path} alt={product.name} />
-        ) : (
-          <ProductArtwork category={category} productName={product.name} />
-        )}
+        <ProductImage
+          key={imageSrc || 'fallback'}
+          src={imageSrc}
+          productName={product.name}
+          category={category}
+        />
       </div>
 
       <div className="product-card__body">
