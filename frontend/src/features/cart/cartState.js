@@ -65,6 +65,8 @@ export function cartReducer(lines, action) {
       )
     case 'remove':
       return lines.filter((line) => line.key !== action.key)
+    case 'clear':
+      return action.confirmed === true ? [] : lines
     default:
       return lines
   }

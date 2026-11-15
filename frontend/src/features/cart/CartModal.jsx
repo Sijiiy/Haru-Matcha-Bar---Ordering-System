@@ -1,11 +1,15 @@
+import { useState } from 'react'
 import Modal from '../../components/ui/Modal.jsx'
 import QuantitySelector from '../../components/ui/QuantitySelector.jsx'
 import { formatPeso } from '../../utils/currency.js'
 import { lineSubtotal, MAX_QUANTITY } from './cartState.js'
 import ProductImage from '../menu/ProductImage.jsx'
 import { getProductImage } from '../menu/productImages.js'
+import ClearOrderDialog from './ClearOrderDialog.jsx'
 
 function CartModal({ lines, itemCount, subtotal, dispatch, onClose }) {
+  const [confirmClear, setConfirmClear] = useState(false)
+
   return (
     <Modal titleId="cart-title" onClose={onClose} className="cart-modal">
       <header className="cart-modal__header">
@@ -69,11 +73,25 @@ function CartModal({ lines, itemCount, subtotal, dispatch, onClose }) {
           </ul>
           <footer className="cart-modal__footer">
             <div className="cart-subtotal" aria-live="polite"><span>Subtotal</span><strong>{formatPeso(subtotal)}</strong></div>
-            <p>Your items are saved here while you browse.</p>
+            <p className="cart-footer-note">
+              <span>Your items are saved here while you browse.</span>
+              <button className="clear-order-action" type="button" onClick={() => setConfirmClear(true)}>
+                Clear order
+              </button>
+            </p>
             <button className="order-button" type="button" onClick={onClose}>Continue browsing <span aria-hidden="true">↗</span></button>
           </footer>
         </>
       )}
+      {confirmClear ? (
+        <ClearOrderDialog
+          onCancel={() => setConfirmClear(false)}
+          onConfirm={() => {
+            dispatch({ type: 'clear', confirmed: true })
+            setConfirmClear(false)
+          }}
+        />
+      ) : null}
     </Modal>
   )
 }

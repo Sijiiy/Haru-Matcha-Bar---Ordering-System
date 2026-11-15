@@ -86,3 +86,32 @@ test('image metadata is retained without changing cart identity, merging or pric
   assert.equal(cartSubtotal(lines), 44000)
   assert.equal(add([])[0].product_image_path, null)
 })
+
+test('cancelled or unconfirmed clearing preserves every cart line and total', () => {
+  const lines = add(add([], small, 2), large, 3)
+  const snapshot = structuredClone(lines)
+  assert.strictEqual(cartReducer(lines, { type: 'clear', confirmed: false }), lines)
+  assert.strictEqual(cartReducer(lines, { type: 'clear' }), lines)
+  assert.deepEqual(lines, snapshot)
+  assert.equal(cartItemCount(lines), 5)
+  assert.equal(cartSubtotal(lines), 137000)
+})
+
+test('confirmed clearing removes all lines and resets count and subtotal', () => {
+  const lines = add(add([], small, MAX_QUANTITY), large, 2)
+  const cleared = cartReducer(lines, { type: 'clear', confirmed: true })
+  assert.deepEqual(cleared, [])
+  assert.equal(cartItemCount(cleared), 0)
+  assert.equal(cartSubtotal(cleared), 0)
+  assert.equal(lines.length, 2)
+  assert.equal(lines[0].quantity, MAX_QUANTITY)
+})
+
+test('clearing an empty cart is safe and a new order can start after clearing', () => {
+  const cleared = cartReducer(add([], small, MAX_QUANTITY), { type: 'clear', confirmed: true })
+  assert.deepEqual(cartReducer([], { type: 'clear', confirmed: true }), [])
+  const restarted = add(cleared, small, 1)
+  assert.equal(restarted.length, 1)
+  assert.equal(restarted[0].quantity, 1)
+  assert.equal(cartSubtotal(restarted), 22000)
+})

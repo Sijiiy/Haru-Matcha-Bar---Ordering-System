@@ -476,6 +476,67 @@
   font-size: 0.9rem;
 }
 
+.cart-footer-note {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.clear-order-action {
+  min-height: 48px;
+  flex-shrink: 0;
+  padding: 10px 12px;
+  color: var(--wood);
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.clear-order-dialog {
+  width: min(540px, calc(100vw - 48px));
+  padding: 36px;
+}
+
+.clear-order-dialog h2 {
+  font-size: clamp(2rem, 3vw, 2.8rem);
+}
+
+.clear-order-dialog > p:not(.state-eyebrow) {
+  margin: 22px 0 30px;
+  color: var(--ink-soft);
+  font-size: 1.05rem;
+  line-height: 1.65;
+}
+
+.clear-order-dialog__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.clear-order-dialog__actions button {
+  flex: 1 1 160px;
+  min-height: 60px;
+  padding: 16px 20px;
+  border-radius: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.cancel-clear-order {
+  color: var(--ink);
+  background: var(--cream);
+  border: 1px solid var(--line);
+}
+
+.clear-order-dialog .order-button {
+  width: auto;
+  justify-content: center;
+}
+
 .cart-empty {
   padding: 64px 36px;
   text-align: center;

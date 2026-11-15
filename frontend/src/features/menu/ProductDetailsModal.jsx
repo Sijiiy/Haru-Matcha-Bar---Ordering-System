@@ -13,6 +13,7 @@ function ProductDetailsModal({ product, category, lines, onAdd, onClose }) {
     product.variants[0]
   const [selectedId, setSelectedId] = useState(defaultVariant.id)
   const [quantity, setQuantity] = useState(1)
+  const [addError, setAddError] = useState('')
   const variant = product.variants.find((option) => option.id === selectedId)
   const existingQuantity = lines.find(
     (line) => line.key === cartLineKey(product.slug, variant.id),
@@ -22,6 +23,7 @@ function ProductDetailsModal({ product, category, lines, onAdd, onClose }) {
   const handleVariantChange = (id) => {
     setSelectedId(id)
     setQuantity(1)
+    setAddError('')
   }
 
   return (
@@ -45,13 +47,19 @@ function ProductDetailsModal({ product, category, lines, onAdd, onClose }) {
           <VariantSelector variants={product.variants} selectedId={selectedId} onChange={handleVariantChange} />
           <div className="product-modal__quantity">
             <span>Quantity</span>
-            <QuantitySelector quantity={quantity} onChange={setQuantity} max={Math.max(1, remaining)} />
+            <QuantitySelector quantity={quantity} onChange={(value) => {
+              setQuantity(value)
+              setAddError('')
+            }} max={Math.max(1, remaining)} />
           </div>
           <p className="quantity-note" role="status">
             {remaining === 0
               ? `You already have ${MAX_QUANTITY} of this option in your order.`
-              : `Up to ${MAX_QUANTITY} per option${existingQuantity ? ` · ${existingQuantity} already in your order` : ''}.`}
+              : existingQuantity
+                ? `You can add up to ${remaining} more of this option · ${existingQuantity} already in your order.`
+                : `Up to ${MAX_QUANTITY} per option.`}
           </p>
+          {addError ? <p className="quantity-note" role="alert">{addError}</p> : null}
           <div className="product-modal__total" aria-live="polite">
             <div><span>Line total</span><small>{formatPeso(variant.price_centavos)} × {quantity}</small></div>
             <strong>{formatPeso(variant.price_centavos * quantity)}</strong>
@@ -60,7 +68,11 @@ function ProductDetailsModal({ product, category, lines, onAdd, onClose }) {
             className="order-button"
             type="button"
             disabled={remaining === 0 || quantity > remaining}
-            onClick={() => onAdd(product, variant, quantity)}
+            onClick={() => {
+              if (onAdd(product, variant, quantity) === false) {
+                setAddError(`You can have up to ${MAX_QUANTITY} of this option. Review your order or choose a smaller quantity.`)
+              }
+            }}
           >
             Add to Order <span aria-hidden="true">↗</span>
           </button>

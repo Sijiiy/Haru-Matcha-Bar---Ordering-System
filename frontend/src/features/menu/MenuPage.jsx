@@ -78,11 +78,12 @@ function MenuPage() {
 
   const handleAdd = (product, variant, quantity) => {
     const existing = cart.lines.find((line) => line.key === cartLineKey(product.slug, variant.id))
-    if ((existing?.quantity || 0) + quantity > MAX_QUANTITY) return
+    if ((existing?.quantity || 0) + quantity > MAX_QUANTITY) return false
 
     cart.dispatch({ type: 'add', product, variant, quantity })
     setConfirmation(`Added ${quantity} × ${product.name}${variant.name ? ` · ${variant.name}` : ''} to your order.`)
     setModal(null)
+    return true
   }
 
   const visibleCategories = useMemo(() => {
