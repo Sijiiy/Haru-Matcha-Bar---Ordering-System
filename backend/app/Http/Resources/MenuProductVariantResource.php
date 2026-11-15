@@ -16,7 +16,8 @@ class MenuProductVariantResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'name' => $this->name,
+            // Internal identifier for a single-price item, never a size label.
+            'name' => $this->name === '__single_price__' ? null : $this->name,
             'price_centavos' => $this->price_centavos,
         ];
     }

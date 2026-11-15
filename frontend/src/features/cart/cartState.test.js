@@ -72,3 +72,17 @@ test('a variant outside the selected product and invalid prices are rejected', (
   assert.strictEqual(add(lines, { ...small, price_centavos: -1 }), lines)
   assert.strictEqual(add(lines, { ...small, price_centavos: 1.5 }), lines)
 })
+
+test('image metadata is retained without changing cart identity, merging or pricing', () => {
+  const product = { ...volumeI, image_path: '/approved/volume-i.png' }
+  let lines = cartReducer([], { type: 'add', product, variant: small, quantity: 1 })
+  assert.equal(lines[0].product_image_path, product.image_path)
+  assert.equal(lines[0].key, cartLineKey(volumeI.slug, small.id))
+  lines = cartReducer(lines, { type: 'add', product, variant: small, quantity: 1 })
+  assert.equal(lines.length, 1)
+  assert.equal(lines[0].quantity, 2)
+  assert.equal(lines[0].product_image_path, product.image_path)
+  assert.equal(lines[0].variant_id, small.id)
+  assert.equal(cartSubtotal(lines), 44000)
+  assert.equal(add([])[0].product_image_path, null)
+})

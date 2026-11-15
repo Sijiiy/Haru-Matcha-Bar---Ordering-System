@@ -69,6 +69,7 @@ function MenuPage() {
   const cart = useCart()
   const [modal, setModal] = useState(null)
   const [confirmation, setConfirmation] = useState('')
+  const isMockMode = import.meta.env.VITE_MENU_SOURCE === 'mock'
 
   const handleProductSelect = (product, category) => {
     setConfirmation('')
@@ -121,7 +122,7 @@ function MenuPage() {
         <section className="menu-intro" aria-labelledby="menu-title">
           <div className="menu-intro__eyebrow">
             <span />
-            Touchscreen menu
+            {isMockMode ? 'Prototype menu · Mock prices' : 'Touchscreen menu'}
           </div>
           <div className="menu-intro__copy">
             <h1 id="menu-title">Find your next cup.</h1>

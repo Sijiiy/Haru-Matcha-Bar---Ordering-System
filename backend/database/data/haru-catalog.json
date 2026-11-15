@@ -1,0 +1,275 @@
+{
+  "data": [
+    {
+      "name": "Matcha",
+      "slug": "matcha",
+      "description": null,
+      "products": [
+        {
+          "name": "Volume I",
+          "slug": "volume-i",
+          "description": "creamy, nutty, mellow",
+          "variants": [
+            {
+              "name": "12 oz",
+              "price_centavos": 22000
+            },
+            {
+              "name": "16 oz (5g)",
+              "price_centavos": 31000
+            }
+          ]
+        },
+        {
+          "name": "Volume II",
+          "slug": "volume-ii",
+          "description": "clean, floral, smooth",
+          "variants": [
+            {
+              "name": "12 oz",
+              "price_centavos": 20000
+            },
+            {
+              "name": "16 oz (5g)",
+              "price_centavos": 29000
+            }
+          ]
+        },
+        {
+          "name": "Volume III",
+          "slug": "volume-iii",
+          "description": "rich umami, deep, refined",
+          "variants": [
+            {
+              "name": "12 oz",
+              "price_centavos": 27000
+            }
+          ]
+        },
+        {
+          "name": "Rōzu",
+          "slug": "rozu",
+          "description": "delicate rose sweetness",
+          "variants": [
+            {
+              "name": "12 oz",
+              "price_centavos": 20000
+            },
+            {
+              "name": "16 oz (5g)",
+              "price_centavos": 31000
+            }
+          ]
+        },
+        {
+          "name": "Kohaku",
+          "slug": "kohaku",
+          "description": "smooth toasted milk",
+          "variants": [
+            {
+              "name": "12 oz",
+              "price_centavos": 22000
+            },
+            {
+              "name": "16 oz (5g)",
+              "price_centavos": 30000
+            }
+          ]
+        },
+        {
+          "name": "Koga Crunch",
+          "slug": "koga-crunch",
+          "description": "golden honey cereal crunch",
+          "variants": [
+            {
+              "name": "12 oz",
+              "price_centavos": 22000
+            },
+            {
+              "name": "16 oz (5g)",
+              "price_centavos": 32000
+            }
+          ]
+        },
+        {
+          "name": "Banana Yume",
+          "slug": "banana-yume",
+          "description": "creamy banana pudding",
+          "variants": [
+            {
+              "name": "12 oz",
+              "price_centavos": 21500
+            },
+            {
+              "name": "16 oz (5g)",
+              "price_centavos": 31000
+            }
+          ]
+        },
+        {
+          "name": "Shio Cream",
+          "slug": "shio-cream",
+          "description": "sweet-salty cream",
+          "variants": [
+            {
+              "name": "12 oz",
+              "price_centavos": 21500
+            },
+            {
+              "name": "16 oz (5g)",
+              "price_centavos": 29000
+            }
+          ]
+        },
+        {
+          "name": "Kogane Cream",
+          "slug": "kogane-cream",
+          "description": null,
+          "variants": [
+            {
+              "name": "12 oz",
+              "price_centavos": 23000
+            },
+            {
+              "name": "16 oz (5g)",
+              "price_centavos": 34000
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Hojicha",
+      "slug": "hojicha",
+      "description": null,
+      "products": [
+        {
+          "name": "Hojicha",
+          "slug": "hojicha",
+          "description": "Smooth, toasty, and comforting.",
+          "variants": [
+            {
+              "name": null,
+              "price_centavos": 18000
+            }
+          ]
+        },
+        {
+          "name": "Sea Salt Cream Hojicha",
+          "slug": "sea-salt-cream-hojicha",
+          "description": null,
+          "variants": [
+            {
+              "name": null,
+              "price_centavos": 19000
+            }
+          ]
+        },
+        {
+          "name": "Cereal Crunch Hojicha",
+          "slug": "cereal-crunch-hojicha",
+          "description": null,
+          "variants": [
+            {
+              "name": null,
+              "price_centavos": 20000
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Coffee",
+      "slug": "coffee",
+      "description": null,
+      "products": [
+        {
+          "name": "Espresso",
+          "slug": "espresso",
+          "description": null,
+          "variants": [
+            {
+              "name": "Hot",
+              "price_centavos": 10000
+            }
+          ]
+        },
+        {
+          "name": "Americano",
+          "slug": "americano",
+          "description": null,
+          "variants": [
+            {
+              "name": "Hot",
+              "price_centavos": 11000
+            },
+            {
+              "name": "Iced",
+              "price_centavos": 11500
+            }
+          ]
+        },
+        {
+          "name": "Latte",
+          "slug": "latte",
+          "description": null,
+          "variants": [
+            {
+              "name": "Hot",
+              "price_centavos": 14000
+            },
+            {
+              "name": "Iced",
+              "price_centavos": 14500
+            }
+          ]
+        },
+        {
+          "name": "Spanish Latte",
+          "slug": "spanish-latte",
+          "description": null,
+          "variants": [
+            {
+              "name": "Hot",
+              "price_centavos": 14500
+            },
+            {
+              "name": "Iced",
+              "price_centavos": 15000
+            }
+          ]
+        },
+        {
+          "name": "Cream Mocha Latte",
+          "slug": "cream-mocha-latte",
+          "description": null,
+          "variants": [
+            {
+              "name": "Hot",
+              "price_centavos": 16000
+            },
+            {
+              "name": "Iced",
+              "price_centavos": 16500
+            }
+          ]
+        },
+        {
+          "name": "Honey Oat Latte",
+          "slug": "honey-oat-latte",
+          "description": null,
+          "variants": [
+            {
+              "name": "Hot",
+              "price_centavos": 19500
+            },
+            {
+              "name": "Iced",
+              "price_centavos": 20000
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

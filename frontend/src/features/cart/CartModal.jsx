@@ -2,6 +2,8 @@ import Modal from '../../components/ui/Modal.jsx'
 import QuantitySelector from '../../components/ui/QuantitySelector.jsx'
 import { formatPeso } from '../../utils/currency.js'
 import { lineSubtotal, MAX_QUANTITY } from './cartState.js'
+import ProductImage from '../menu/ProductImage.jsx'
+import { getProductImage } from '../menu/productImages.js'
 
 function CartModal({ lines, itemCount, subtotal, dispatch, onClose }) {
   return (
@@ -27,10 +29,21 @@ function CartModal({ lines, itemCount, subtotal, dispatch, onClose }) {
           <ul className="cart-lines">
             {lines.map((line) => (
               <li className="cart-line" key={line.key}>
-                <div className="cart-line__description">
-                  <h3>{line.product_name}</h3>
-                  {line.variant_name ? <p>{line.variant_name}</p> : null}
-                  <p>{formatPeso(line.unit_price_centavos)} each</p>
+                <div className="cart-line__summary">
+                  <div className="cart-line__thumbnail">
+                    <ProductImage
+                      src={getProductImage({
+                        slug: line.product_slug,
+                        image_path: line.product_image_path,
+                      }, line.variant_name)}
+                      productName={line.product_name}
+                    />
+                  </div>
+                  <div className="cart-line__description">
+                    <h3>{line.product_name}</h3>
+                    {line.variant_name ? <p>{line.variant_name}</p> : null}
+                    <p>{formatPeso(line.unit_price_centavos)} each</p>
+                  </div>
                 </div>
                 <div className="cart-line__controls">
                   <QuantitySelector

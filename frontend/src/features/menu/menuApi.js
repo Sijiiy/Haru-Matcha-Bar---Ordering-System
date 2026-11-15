@@ -1,42 +1,27 @@
-import { mockMenuResponse } from './mockMenu.js'
+import { normalizeMenu } from './normalizeMenu.js'
+import { menuSourceConfig } from './menuSource.js'
 
-const MOCK_RESPONSE_DELAY = 420
-
-function abortError() {
-  return new DOMException('The request was cancelled.', 'AbortError')
-}
-
-async function getMockMenu({ signal } = {}) {
-  await new Promise((resolve) => window.setTimeout(resolve, MOCK_RESPONSE_DELAY))
-
-  if (signal?.aborted) {
-    throw abortError()
-  }
-
-  return structuredClone(mockMenuResponse.data)
-}
-
-export async function getMenuFromApi({ signal } = {}) {
-  const response = await fetch('/api/menu', {
+export async function getMenuFromApi({ signal, url = '/api/menu', fetcher = fetch } = {}) {
+  // The timeout also covers stalled response bodies. Parent cancellation stays
+  // an AbortError; a timeout remains a visible, retryable load failure.
+  const timeout = AbortSignal.timeout(15000)
+  const requestSignal = signal ? AbortSignal.any([signal, timeout]) : timeout
+  const response = await fetcher(url, {
     headers: { Accept: 'application/json' },
-    signal,
+    signal: requestSignal,
   })
-
-  if (!response.ok) {
-    throw new Error('The menu could not be loaded.')
-  }
-
-  const payload = await response.json()
-
-  if (!Array.isArray(payload.data)) {
-    throw new Error('The menu response was not in the expected format.')
-  }
-
-  return payload.data
+  if (!response.ok) throw new Error('The menu could not be loaded.')
+  return normalizeMenu(await response.json())
 }
 
-// Frontend milestone 1 uses confirmed development mock data.
-// Switch this boundary to getMenuFromApi when the production catalog is ready.
-export function getMenu(options) {
-  return getMockMenu(options)
+export async function getMenu({ signal, env = import.meta.env, fetcher = fetch } = {}) {
+  const { source, menuUrl } = menuSourceConfig(env)
+  if (source === 'mock') {
+    // Mock catalog is loaded only when explicitly selected. API errors never
+    // enter this path, and mock prices are not bundled into the API entry chunk.
+    const { mockMenuResponse } = await import('./mockMenu.js')
+    signal?.throwIfAborted()
+    return normalizeMenu(structuredClone(mockMenuResponse))
+  }
+  return getMenuFromApi({ signal, url: menuUrl, fetcher })
 }

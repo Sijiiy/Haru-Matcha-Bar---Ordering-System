@@ -50,6 +50,7 @@ export function cartReducer(lines, action) {
           product_id: product.id,
           product_slug: product.slug,
           product_name: product.name,
+          product_image_path: product.image_path ?? null,
           variant_id: variant.id,
           variant_name: variant.name,
           unit_price_centavos: variant.price_centavos,
