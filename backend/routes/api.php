@@ -1,10 +1,15 @@
 <?php
 
 use App\Http\Controllers\Api\MenuController;
+use App\Http\Controllers\Api\StoreOrderController;
+use App\Http\Middleware\EnsureOrderCreationEnabled;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/menu', MenuController::class);
+
+Route::post('/orders', StoreOrderController::class)
+    ->middleware([EnsureOrderCreationEnabled::class, 'throttle:order-creation']);
 
 Route::get('/user', function (Request $request) {
     return $request->user();
