@@ -16,6 +16,16 @@ export function cartItemCount(lines) {
   return lines.reduce((sum, line) => sum + line.quantity, 0)
 }
 
+// A display snapshot is used only to protect edits during a pending request.
+// It is never sent to Laravel or used for authoritative pricing.
+export function cartSnapshotKey(lines) {
+  return JSON.stringify(lines.map((line) => [
+    line.key, line.product_id, line.product_slug, line.product_name,
+    line.product_image_path ?? null, line.variant_id, line.variant_name,
+    line.unit_price_centavos, line.quantity,
+  ]).sort((a, b) => String(a[0]).localeCompare(String(b[0]))))
+}
+
 function validQuantity(quantity) {
   return Number.isInteger(quantity) && quantity >= 1 && quantity <= MAX_QUANTITY
 }
@@ -67,6 +77,10 @@ export function cartReducer(lines, action) {
       return lines.filter((line) => line.key !== action.key)
     case 'clear':
       return action.confirmed === true ? [] : lines
+    case 'order-confirmed':
+      // A late response must never clear a cart the customer has since edited.
+      return Array.isArray(action.submittedLines) && action.submittedLines.length > 0
+        && cartSnapshotKey(lines) === cartSnapshotKey(action.submittedLines) ? [] : lines
     default:
       return lines
   }

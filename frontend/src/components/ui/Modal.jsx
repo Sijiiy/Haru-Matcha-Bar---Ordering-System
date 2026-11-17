@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 
-function Modal({ children, titleId, descriptionId, role = 'dialog', onClose, className = '' }) {
+function Modal({ children, titleId, descriptionId, role = 'dialog', onClose, className = '', returnFocusSelector }) {
   const dialogRef = useRef(null)
 
   useEffect(() => {
@@ -19,9 +19,11 @@ function Modal({ children, titleId, descriptionId, role = 'dialog', onClose, cla
       } else if (parentDialog?.open) {
         // Clearing the cart removes the confirmation trigger from the DOM.
         parentDialog.querySelector('button:not(:disabled)')?.focus({ preventScroll: true })
+      } else if (returnFocusSelector) {
+        document.querySelector(returnFocusSelector)?.focus({ preventScroll: true })
       }
     }
-  }, [])
+  }, [returnFocusSelector])
 
   return (
     <dialog

@@ -7,7 +7,7 @@ import ProductImage from '../menu/ProductImage.jsx'
 import { getProductImage } from '../menu/productImages.js'
 import ClearOrderDialog from './ClearOrderDialog.jsx'
 
-function CartModal({ lines, itemCount, subtotal, dispatch, onClose }) {
+function CartModal({ lines, itemCount, subtotal, dispatch, onClose, onReview, hasSubmission }) {
   const [confirmClear, setConfirmClear] = useState(false)
 
   return (
@@ -21,12 +21,14 @@ function CartModal({ lines, itemCount, subtotal, dispatch, onClose }) {
           <span aria-hidden="true">×</span>
         </button>
       </header>
+      {hasSubmission ? <p className="cart-submission-note" role="status">An earlier submission is saved for review. Clearing or editing this cart does not cancel an order that may already have been received.</p> : null}
       {lines.length === 0 ? (
         <div className="cart-empty" role="status">
           <p className="brand-wordmark" aria-hidden="true">haru.</p>
           <h3>Your order starts with a cup.</h3>
           <p>Browse the menu and add something you love.</p>
           <button className="order-button" type="button" onClick={onClose}>Browse menu</button>
+          {hasSubmission ? <button className="review-secondary" type="button" onClick={onReview}>Review earlier submission</button> : null}
         </div>
       ) : (
         <>
@@ -72,14 +74,17 @@ function CartModal({ lines, itemCount, subtotal, dispatch, onClose }) {
             ))}
           </ul>
           <footer className="cart-modal__footer">
-            <div className="cart-subtotal" aria-live="polite"><span>Subtotal</span><strong>{formatPeso(subtotal)}</strong></div>
+            <div className="cart-subtotal" aria-live="polite"><span>Estimated subtotal</span><strong>{formatPeso(subtotal)}</strong></div>
             <p className="cart-footer-note">
               <span>Your items are saved here while you browse.</span>
               <button className="clear-order-action" type="button" onClick={() => setConfirmClear(true)}>
                 Clear order
               </button>
             </p>
-            <button className="order-button" type="button" onClick={onClose}>Continue browsing <span aria-hidden="true">↗</span></button>
+            <div className="cart-review-actions">
+              <button className="order-button" type="button" onClick={onClose}>Continue browsing <span aria-hidden="true">↗</span></button>
+              <button className="cart-review-action" type="button" onClick={onReview}>Review order</button>
+            </div>
           </footer>
         </>
       )}

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import EmptyState from '../../components/ui/EmptyState.jsx'
 import ErrorState from '../../components/ui/ErrorState.jsx'
 import LoadingState from '../../components/ui/LoadingState.jsx'
@@ -10,6 +10,8 @@ import CartModal from '../cart/CartModal.jsx'
 import { useCart } from '../cart/useCart.js'
 import { cartLineKey, MAX_QUANTITY } from '../cart/cartState.js'
 import { formatPeso } from '../../utils/currency.js'
+import { useOrderSubmission } from '../orders/useOrderSubmission.js'
+import OrderReviewModal from '../orders/OrderReviewModal.jsx'
 
 const categoryOptions = [
   { slug: 'all', label: 'All' },
@@ -67,8 +69,20 @@ function MenuPage() {
   const [activeCategory, setActiveCategory] = useState('all')
   const { categories, status, retry } = useMenu()
   const cart = useCart()
-  const [modal, setModal] = useState(null)
+  const [modal, setModal] = useState({ type: 'restore' })
   const [confirmation, setConfirmation] = useState('')
+  const { dispatch } = cart
+  const handleOrderConfirmed = useCallback((order, attempt) => {
+    dispatch({ type: 'order-confirmed', submittedLines: attempt.lines })
+    setConfirmation(`Order ${order.order_reference} recorded. Payment and barista acceptance are pending.`)
+    setModal({ type: 'order' })
+  }, [dispatch])
+  const submission = useOrderSubmission(handleOrderConfirmed)
+  const hasSubmission = Boolean(submission.state.attempt || submission.state.recoveryIssue)
+  // Surface recovery on initial render without an effect or automatic HTTP.
+  const visibleModal = modal?.type === 'restore'
+    ? (submission.state.recovered ? { type: 'order' } : null)
+    : modal
   const isMockMode = import.meta.env.VITE_MENU_SOURCE === 'mock'
 
   const handleProductSelect = (product, category) => {
@@ -172,32 +186,42 @@ function MenuPage() {
         <button
           className="order-entry__button"
           type="button"
-          aria-label={`Review your order, ${cart.itemCount} ${cart.itemCount === 1 ? 'item' : 'items'}`}
+          aria-label={submission.state.phase === 'success' ? 'View order confirmation' : `Review your order, ${cart.itemCount} ${cart.itemCount === 1 ? 'item' : 'items'}`}
           aria-haspopup="dialog"
           onClick={() => {
             setConfirmation('')
-            setModal({ type: 'cart' })
+            setModal({ type: hasSubmission ? 'order' : 'cart' })
           }}
         >
           <span className="order-entry__count">{cart.itemCount}</span>
-          <span>Your order <small>Review items</small></span>
+          <span>Your order <small>{submission.state.phase === 'submitting' ? 'Sending order…' : submission.state.phase === 'success' ? 'View confirmation' : hasSubmission ? 'Review submission' : 'Review items'}</small></span>
           <strong>{formatPeso(cart.subtotal)}</strong>
           <span aria-hidden="true">↗</span>
         </button>
       </div>
 
-      {modal?.type === 'product' ? (
+      {visibleModal?.type === 'product' ? (
         <ProductDetailsModal
-          product={modal.product}
-          category={modal.category}
+          product={visibleModal.product}
+          category={visibleModal.category}
           lines={cart.lines}
           onAdd={handleAdd}
           onClose={() => setModal(null)}
         />
       ) : null}
-      {modal?.type === 'cart' ? (
+      {visibleModal?.type === 'cart' ? (
         <CartModal
           {...cart}
+          onClose={() => setModal(null)}
+          onReview={() => setModal({ type: 'order' })}
+          hasSubmission={hasSubmission}
+        />
+      ) : null}
+      {visibleModal?.type === 'order' ? (
+        <OrderReviewModal
+          lines={cart.lines}
+          submission={submission}
+          onBackToCart={() => setModal({ type: 'cart' })}
           onClose={() => setModal(null)}
         />
       ) : null}
