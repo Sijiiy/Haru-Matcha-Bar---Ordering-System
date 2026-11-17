@@ -202,7 +202,8 @@ objects through ACL revocation despite its ability to bypass RLS.
 `config/database.php` uses the conventional `pgsql` connection with a `public`
 search path. Both Artisan and Eloquent use the configured database identity;
 `DB_URL`, when supplied, can override individual connection settings. No
-connection settings were changed, and no .env files were read or modified.
+connection target or credentials were changed. The TLS requirement described
+below is configured in PHP; no .env files were modified.
 
 The deployment contract is that migrations and the Laravel API use the **same
 private PostgreSQL role**. Creating the tables makes that role their owner, and
@@ -272,6 +273,54 @@ Do not run it under the current inspection/hardening authorization. Confirm the
 API also uses the reviewed pgsql connection/role. Do not enable the order feature,
 seed data, create sample orders, or invoke an unrestricted migration command as
 part of this operation. There is no `--force` bypass.
+
+## Database TLS: distinguish the two pooler hops
+
+The PostgreSQL connection now sets `sslmode => 'require'` in
+`config/database.php`, replacing the previous `env('DB_SSLMODE', 'prefer')`.
+This prevents plaintext fallback on the Laravel-to-Session-Pooler connection.
+The host, port, database, credentials and pooling mode are unchanged.
+`DB_SSLMODE` no longer downgrades this setting. Laravel parses DB_URL query
+options later, so deployment must also verify that the resolved SSL mode is
+`require` and that DB_URL contains no weaker SSL override. The current local
+configuration resolves to `require` without a URL SSL override.
+
+The two TLS hops have separate controls:
+
+- **Laravel to Session Pooler:** libpq's `sslmode=require` requires SSL for the
+  client connection. A successful Laravel connection with this effective mode
+  verifies the TLS-required connection path; the verification must not override
+  the configured mode or retry a weaker mode. `require` does not provide the full
+  hostname verification of `verify-full`; CA/hostname verification needs a
+  separate reviewed certificate configuration.
+- **Session Pooler to PostgreSQL:** `pg_stat_ssl` for `pg_backend_pid()` describes
+  the PostgreSQL backend's connection from the pooler. It does not report the
+  Laravel-to-pooler TLS session. If it reports false, that backend hop is not
+  using TLS even when Laravel successfully connects with `sslmode=require`.
+
+[Supabase documents SSL enforcement](https://supabase.com/docs/guides/platform/ssl-enforcement)
+as controlling both legs of the shared-pooler connection. Requiring TLS in
+Laravel does not enable this project setting. If the backend hop is unencrypted,
+the project owner must separately review enabling Supabase's "Enforce SSL on
+incoming connections" and then reverify both hops. Updating that setting requires
+a database reboot, so schedule it separately; it is not changed by this work.
+See also [libpq SSL modes](https://www.postgresql.org/docs/17/libpq-ssl.html).
+
+Live TLS checks require explicit approval, start with `BEGIN TRANSACTION READ
+ONLY`, verify `transaction_read_only=on` before any further query, inspect only
+non-sensitive connection metadata, and finish with `ROLLBACK`. No orders,
+migrations, seeders or Supabase settings are changed by the verification.
+
+Approved read-only check on 2026-11-17: the resolved mode was `require`, with no
+DB_URL SSL override, and the unchanged Session Pooler connection succeeded.
+`transaction_read_only` was `on` before and after metadata inspection, and
+ROLLBACK completed. The connection used `postgres`, schema `public`, PostgreSQL
+17.11 and READ COMMITTED. The backend's `pg_stat_ssl` row still reported
+`ssl=false`, confirming that this pooler-to-PostgreSQL hop was not using TLS.
+Laravel-to-pooler TLS is required; end-to-end TLS remains a deployment security
+gate until the owner separately reviews/enables Supabase SSL enforcement and
+the backend hop is verified again. The dashboard setting was not queried or
+changed, and no live migration or order creation was performed.
 
 ## Isolated checks
 
